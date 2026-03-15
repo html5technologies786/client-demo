@@ -72,9 +72,12 @@ services:
       dockerfile: Dockerfile
       args:
         API_URL: ${API_URL}
+        NEXT_PUBLIC_PRICE_PER_SECOND: ${NEXT_PUBLIC_PRICE_PER_SECOND}
     restart: unless-stopped
     environment:
       API_URL: ${API_URL}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      NEXT_PUBLIC_PRICE_PER_SECOND: ${NEXT_PUBLIC_PRICE_PER_SECOND}
       NODE_ENV: production
     ports:
       - "3000:3000"

@@ -2,7 +2,7 @@
 #  Stage 1 — deps
 #  Install production dependencies only
 # ──────────────────────────────────────────────
-FROM node:18-alpine AS deps
+FROM node:20-alpine AS deps
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ RUN npm install --omit=dev
 #  Stage 2 — runner
 #  Lean final image with no dev tooling
 # ──────────────────────────────────────────────
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 
 WORKDIR /app
 

@@ -2,7 +2,7 @@
 #  Stage 1 — deps
 #  Install all dependencies for the build step
 # ──────────────────────────────────────────────
-FROM node:18-alpine AS deps
+FROM node:20-alpine AS deps
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ RUN npm ci
 #  Stage 2 — builder
 #  Build the Next.js production bundle
 # ──────────────────────────────────────────────
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -24,13 +24,17 @@ COPY . .
 ARG API_URL
 ENV API_URL=$API_URL
 
+# NEXT_PUBLIC_* vars are baked into the bundle at build time
+ARG NEXT_PUBLIC_PRICE_PER_SECOND
+ENV NEXT_PUBLIC_PRICE_PER_SECOND=$NEXT_PUBLIC_PRICE_PER_SECOND
+
 RUN npm run build
 
 # ──────────────────────────────────────────────
 #  Stage 3 — runner
 #  Minimal image — only the built output
 # ──────────────────────────────────────────────
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 
 WORKDIR /app
 

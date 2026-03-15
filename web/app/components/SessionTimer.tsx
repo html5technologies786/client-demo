@@ -13,16 +13,9 @@ const PRICE_PER_SECOND = parseFloat(
 
 type SessionState = "idle" | "running" | "ended";
 
-interface BillingResult {
-  seconds: number;
-  cost: number;
-  paymentIntentId: string;
-}
-
 export default function SessionTimer() {
   const [sessionState, setSessionState] = useState<SessionState>("idle");
   const [seconds, setSeconds] = useState(0);
-  const [result, setResult] = useState<BillingResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,7 +38,6 @@ export default function SessionTimer() {
   // ── Start Session ──────────────────────────
   const handleStart = () => {
     setSeconds(0);
-    setResult(null);
     setError(null);
     setSessionState("running");
   };
@@ -72,7 +64,7 @@ export default function SessionTimer() {
       const res = await fetch("/api/create-payment-intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: finalCost }),
+        body: JSON.stringify({ amount: finalCost, seconds: finalSeconds }),
       });
 
       const data = await res.json();
@@ -81,15 +73,11 @@ export default function SessionTimer() {
         throw new Error(data.error ?? "API error");
       }
 
-      setResult({
-        seconds: finalSeconds,
-        cost: finalCost,
-        paymentIntentId: data.paymentIntentId,
-      });
+      // Redirect to Stripe hosted checkout page
+      window.location.href = data.checkoutUrl;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
-    } finally {
       setLoading(false);
+      setError(err instanceof Error ? err.message : "Something went wrong.");
     }
   };
 
@@ -139,32 +127,9 @@ export default function SessionTimer() {
           disabled={sessionState !== "running" || loading}
           className="flex-1 py-3 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
         >
-          {loading ? "Processing…" : "■ End Session"}
+          {loading ? "Redirecting to Stripe…" : "■ End Session"}
         </button>
       </div>
-
-      {/* ── Final billing result ── */}
-      {result && (
-        <div className="w-full rounded-xl border border-emerald-200 bg-emerald-50 px-6 py-4 space-y-2">
-          <p className="text-xs font-semibold text-emerald-600 uppercase tracking-widest">
-            Billing Summary
-          </p>
-          <div className="flex justify-between text-sm text-gray-700">
-            <span>Session Duration</span>
-            <span className="font-semibold">{result.seconds}s</span>
-          </div>
-          <div className="flex justify-between text-sm text-gray-700">
-            <span>Final Cost</span>
-            <span className="font-bold text-emerald-700">${result.cost.toFixed(2)}</span>
-          </div>
-          <div className="pt-2 border-t border-emerald-200">
-            <p className="text-xs text-gray-400">Payment Intent ID</p>
-            <p className="text-xs font-mono text-gray-600 break-all mt-0.5">
-              {result.paymentIntentId}
-            </p>
-          </div>
-        </div>
-      )}
 
       {/* ── Error state ── */}
       {error && (
