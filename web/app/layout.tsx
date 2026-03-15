@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { I18nProvider } from "./components/I18nProvider";
+import Nav from "./components/Nav";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -33,7 +34,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased transition-all duration-300`}
       >
-        <I18nProvider>{children}</I18nProvider>
+        <I18nProvider>
+          <Nav />
+          {children}
+        </I18nProvider>
       </body>
     </html>
   );
