@@ -1,0 +1,84 @@
+version: "3.9"
+
+# ──────────────────────────────────────────────
+#  All services communicate via internal Docker
+#  hostnames — never use localhost between containers
+# ──────────────────────────────────────────────
+networks:
+  app-network:
+    driver: bridge
+
+# ──────────────────────────────────────────────
+#  Named volume — Postgres data persists across
+#  container restarts and rebuilds
+# ──────────────────────────────────────────────
+volumes:
+  postgres-data:
+
+services:
+
+  # ──────────────────────────────────────────
+  #  PostgreSQL Database
+  # ──────────────────────────────────────────
+  postgres-db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"         # exposed for local tools (TablePlus, psql, etc.)
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ──────────────────────────────────────────
+  #  Express API
+  #  Starts only after postgres-db is healthy
+  # ──────────────────────────────────────────
+  express-api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      PORT: 5000
+      NODE_ENV: production
+    ports:
+      - "5000:5000"
+    networks:
+      - app-network
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+
+  # ──────────────────────────────────────────
+  #  Next.js Frontend
+  #  Starts after express-api is up
+  #  Communicates with API via internal hostname
+  # ──────────────────────────────────────────
+  nextjs-app:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      args:
+        API_URL: ${API_URL}
+    restart: unless-stopped
+    environment:
+      API_URL: ${API_URL}
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+    depends_on:
+      - express-api
