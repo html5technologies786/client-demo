@@ -1,0 +1,10 @@
+{
+  "dashboardTitle": "Panel del Sistema",
+  "subtitle": "Se actualiza automáticamente cada 10 segundos",
+  "lastUpdated": "Última actualización",
+  "requestsMade": "Solicitudes Realizadas",
+  "tokensUsed": "Tokens Utilizados",
+  "activeConnections": "Conexiones Activas",
+  "live": "En vivo",
+  "language": "Idioma"
+}

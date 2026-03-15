@@ -1,0 +1,10 @@
+{
+  "dashboardTitle": "لوحة التحكم",
+  "subtitle": "يتحدث تلقائياً كل ١٠ ثوانٍ",
+  "lastUpdated": "آخر تحديث",
+  "requestsMade": "الطلبات المُرسَلة",
+  "tokensUsed": "الرموز المستخدمة",
+  "activeConnections": "الاتصالات النشطة",
+  "live": "مباشر",
+  "language": "اللغة"
+}

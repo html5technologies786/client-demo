@@ -1,0 +1,10 @@
+{
+  "dashboardTitle": "System Dashboard",
+  "subtitle": "Auto-refreshes every 10 seconds",
+  "lastUpdated": "Last updated",
+  "requestsMade": "Requests Made",
+  "tokensUsed": "Tokens Used",
+  "activeConnections": "Active Connections",
+  "live": "Live",
+  "language": "Language"
+}
